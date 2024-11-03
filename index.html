@@ -3,22 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Weather App</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Weatherio</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="container">
-    <h1>Weather App</h1>
-    
-    <!-- Search Weather by City -->
-    <input type="text" id="cityInput" placeholder="Enter city name" />
-    <button onclick="getWeatherByCity()">Search by City</button>
+    <header>
+      <h1>weatherio</h1>
+      <div class="search-bar">
+        <input type="text" id="cityInput" placeholder="Search city...">
+        <button onclick="getWeatherByCity()">Search</button>
+        <button onclick="getWeatherByLocation()">Current Location</button>
+      </div>
+    </header>
 
-    <!-- Get Weather by Current Location -->
-    <button onclick="getWeatherByLocation()">Use My Location</button>
+    <main>
+      <!-- Current Weather Section -->
+      <section class="current-weather">
+        <div class="temperature" id="temperature">--°C</div>
+        <div class="description" id="description">--</div>
+        <div class="date" id="date">--</div>
+        <div class="location" id="location">--</div>
+      </section>
 
-    <!-- Display Weather Information -->
-    <div id="weatherInfo" class="weather-info"></div>
+      <!-- Today's Highlights Section -->
+      <section class="highlights">
+        <h2>Today's Highlights</h2>
+        <div class="highlight" id="airQuality">Air Quality Index: --</div>
+        <div class="highlight" id="sunTimes">Sunrise: -- | Sunset: --</div>
+        <div class="highlight" id="humidity">Humidity: --%</div>
+        <div class="highlight" id="pressure">Pressure: -- hPa</div>
+        <div class="highlight" id="visibility">Visibility: -- km</div>
+        <div class="highlight" id="feelsLike">Feels Like: --°C</div>
+      </section>
+
+      <!-- 5 Days Forecast Section -->
+      <section class="forecast">
+        <h2>5 Days Forecast</h2>
+        <div class="forecast-items" id="forecastItems">
+          <!-- Forecast items will be dynamically added here -->
+        </div>
+      </section>
+    </main>
   </div>
 
   <script src="script.js"></script>
