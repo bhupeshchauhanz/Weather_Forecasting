@@ -1,4 +1,4 @@
-const API_KEY = '56ed3783db3670e2f55ed152bb5c2a94'; //OpenWeatherMap API key
+const API_KEY = '56ed3783db3670e2f55ed152bb5c2a94'; // OpenWeatherMap API key
 
 // Function to get weather by city name
 async function getWeatherByCity() {
@@ -43,12 +43,16 @@ async function getWeatherByLocation() {
   });
 }
 
-// Function to display weather data
+// Function to display weather data with more details
 function displayWeather(data) {
   const weatherInfo = document.getElementById('weatherInfo');
   weatherInfo.innerHTML = `
-    <p>City: ${data.name}</p>
-    <p>Temperature: ${data.main.temp}°C</p>
-    <p>Weather: ${data.weather[0].description}</p>
+    <p><strong>City:</strong> ${data.name}</p>
+    <p><strong>Temperature:</strong> ${data.main.temp}°C</p>
+    <p><strong>Feels Like:</strong> ${data.main.feels_like}°C</p>
+    <p><strong>Weather:</strong> ${data.weather[0].description}</p>
+    <p><strong>Humidity:</strong> ${data.main.humidity}%</p>
+    <p><strong>Wind Speed:</strong> ${data.wind.speed} m/s</p>
+    <p><strong>Pressure:</strong> ${data.main.pressure} hPa</p>
   `;
 }
