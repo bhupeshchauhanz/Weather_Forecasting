@@ -18,7 +18,7 @@ async function getWeatherByLocation() {
         const { latitude, longitude } = position.coords;
         fetchWeatherData(`lat=${latitude}&lon=${longitude}`);
         fetchAirQuality(latitude, longitude);
-        getFiveDayForecast(`lat=${latitude}&lon=${longitude}`);
+        getFiveDayForecast(latitude, longitude);
         showMap(latitude, longitude);
       },
       () => alert('Could not get location')
@@ -36,11 +36,13 @@ async function fetchWeatherData(query) {
     if (!response.ok) throw new Error('Weather data not found');
     const data = await response.json();
 
+    // Update main weather display
     document.getElementById('temperature').innerText = `${data.main.temp}°C`;
     document.getElementById('description').innerText = data.weather[0].description;
     document.getElementById('date').innerText = new Date().toLocaleDateString();
     document.getElementById('location').innerText = data.name;
 
+    // Update today's highlights
     document.getElementById('humidity').innerText = `Humidity: ${data.main.humidity}%`;
     document.getElementById('pressure').innerText = `Pressure: ${data.main.pressure} hPa`;
     document.getElementById('visibility').innerText = `Visibility: ${(data.visibility / 1000).toFixed(1)} km`;
@@ -54,9 +56,9 @@ async function fetchWeatherData(query) {
 }
 
 // Function to fetch 5-day weather forecast
-async function getFiveDayForecast(query) {
+async function getFiveDayForecast(lat, lon) {
   try {
-    const response = await fetch(`https://api.openweathermap.org/data/2.5/forecast?${query}&appid=${API_KEY}&units=metric`);
+    const response = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`);
     if (!response.ok) throw new Error('Forecast data not found');
     const data = await response.json();
 
@@ -71,6 +73,7 @@ async function getFiveDayForecast(query) {
           <p>${new Date(item.dt * 1000).toLocaleDateString()}</p>
           <p>${item.main.temp}°C</p>
           <p>${item.weather[0].description}</p>
+          <p>Rain: ${(item.pop * 100).toFixed(0)}%</p>
         `;
         forecastItemsContainer.appendChild(forecastItem);
       }
@@ -96,7 +99,7 @@ async function fetchAirQuality(lat, lon) {
 function showMap(lat, lon) {
   const map = document.getElementById('map');
   map.innerHTML = `
-    <img src="https://tile.openweathermap.org/map/temp_new/10/${lat}/${lon}.png?appid=${API_KEY}" alt="Weather map overlay" width="100%" height="300px" />
+    <img src="https://tile.openweathermap.org/map/temp_new/10/${Math.floor(lat)}/${Math.floor(lon)}.png?appid=${API_KEY}" alt="Weather map overlay" width="100%" height="300px" />
   `;
 }
 
