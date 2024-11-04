@@ -17,6 +17,8 @@
       </div>
     </header>
 
+    <div id="loading" style="display: none;">Loading...</div>
+
     <main>
       <!-- Current Weather Section -->
       <section class="current-weather">
@@ -37,12 +39,16 @@
         <div class="highlight" id="feelsLike">Feels Like: --°C</div>
       </section>
 
-      <!-- 5 Days Forecast Section -->
+      <!-- 5-Day Forecast Section -->
       <section class="forecast">
-        <h2>5 Days Forecast</h2>
-        <div class="forecast-items" id="forecastItems">
-          <!-- Forecast items will be dynamically added here -->
-        </div>
+        <h2>5-Day Forecast</h2>
+        <div class="forecast-items" id="forecastItems"></div>
+      </section>
+
+      <!-- Map Section -->
+      <section class="map">
+        <h2>Weather Map</h2>
+        <div id="map"></div>
       </section>
     </main>
   </div>
