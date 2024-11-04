@@ -1,4 +1,4 @@
-const API_KEY = '56ed3783db3670e2f55ed152bb5c2a94'; // OpenWeatherMap API key
+const API_KEY = '56ed3783db3670e2f55ed152bb5c2a94';
 
 // Function to fetch weather by city name
 async function getWeatherByCity() {
@@ -17,8 +17,9 @@ async function getWeatherByLocation() {
       (position) => {
         const { latitude, longitude } = position.coords;
         fetchWeatherData(`lat=${latitude}&lon=${longitude}`);
-        fetchAirQuality(latitude, longitude); // Get air quality for location
-        getFiveDayForecast(`lat=${latitude}&lon=${longitude}`); // Get forecast for location
+        fetchAirQuality(latitude, longitude);
+        getFiveDayForecast(`lat=${latitude}&lon=${longitude}`);
+        showMap(latitude, longitude);
       },
       () => alert('Could not get location')
     );
@@ -27,7 +28,7 @@ async function getWeatherByLocation() {
   }
 }
 
-// Function to fetch weather data and update UI
+// Function to fetch current weather data and update UI
 async function fetchWeatherData(query) {
   try {
     showLoading(true);
@@ -35,13 +36,11 @@ async function fetchWeatherData(query) {
     if (!response.ok) throw new Error('Weather data not found');
     const data = await response.json();
 
-    // Current Weather
     document.getElementById('temperature').innerText = `${data.main.temp}°C`;
     document.getElementById('description').innerText = data.weather[0].description;
     document.getElementById('date').innerText = new Date().toLocaleDateString();
     document.getElementById('location').innerText = data.name;
 
-    // Highlights
     document.getElementById('humidity').innerText = `Humidity: ${data.main.humidity}%`;
     document.getElementById('pressure').innerText = `Pressure: ${data.main.pressure} hPa`;
     document.getElementById('visibility').innerText = `Visibility: ${(data.visibility / 1000).toFixed(1)} km`;
@@ -54,7 +53,7 @@ async function fetchWeatherData(query) {
   }
 }
 
-// Function to fetch 5-day forecast
+// Function to fetch 5-day weather forecast
 async function getFiveDayForecast(query) {
   try {
     const response = await fetch(`https://api.openweathermap.org/data/2.5/forecast?${query}&appid=${API_KEY}&units=metric`);
@@ -62,10 +61,10 @@ async function getFiveDayForecast(query) {
     const data = await response.json();
 
     const forecastItemsContainer = document.getElementById('forecastItems');
-    forecastItemsContainer.innerHTML = ''; // Clear previous forecast items
+    forecastItemsContainer.innerHTML = ''; 
 
     data.list.forEach((item, index) => {
-      if (index % 8 === 0) { // Every 8th item represents a new day
+      if (index % 8 === 0) {
         const forecastItem = document.createElement('div');
         forecastItem.className = 'forecast-item';
         forecastItem.innerHTML = `
@@ -93,14 +92,18 @@ async function fetchAirQuality(lat, lon) {
   }
 }
 
+// Function to show map with weather overlay
+function showMap(lat, lon) {
+  const map = document.getElementById('map');
+  map.innerHTML = `
+    <img src="https://tile.openweathermap.org/map/temp_new/10/${lat}/${lon}.png?appid=${API_KEY}" alt="Weather map overlay" width="100%" height="300px" />
+  `;
+}
+
 // Show loading indicator
 function showLoading(isLoading) {
   const loadingElement = document.getElementById('loading');
-  if (isLoading) {
-    loadingElement.style.display = 'block';
-  } else {
-    loadingElement.style.display = 'none';
-  }
+  loadingElement.style.display = isLoading ? 'block' : 'none';
 }
 
 // Add event listeners to search buttons
