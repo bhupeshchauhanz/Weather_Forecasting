@@ -7,111 +7,124 @@ async function getWeatherByCity() {
     alert('Please enter a city name');
     return;
   }
-  fetchWeatherData(`q=${city}`);
+  try {
+    const geocodeUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${API_KEY}`;
+    const geocodeResponse = await fetch(geocodeUrl);
+    const geocodeData = await geocodeResponse.json();
+    
+    if (geocodeData && geocodeData.length > 0) {
+      const { lat, lon } = geocodeData[0];
+      fetchWeatherData(lat, lon);
+    } else {
+      alert('City not found. Please check the spelling or try a different city.');
+    }
+  } catch (error) {
+    console.error("Error fetching geocoding data:", error);
+    alert('Unable to retrieve data for the specified city. Please try again later.');
+  }
 }
 
-// Function to fetch weather by location
+// Function to fetch weather by current location
 async function getWeatherByLocation() {
   if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        fetchWeatherData(`lat=${latitude}&lon=${longitude}`);
-        fetchAirQuality(latitude, longitude);
-        getFiveDayForecast(latitude, longitude);
-        showMap(latitude, longitude);
-      },
-      () => alert('Could not get location')
-    );
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      const { latitude, longitude } = position.coords;
+      fetchWeatherData(latitude, longitude);
+    }, () => alert('Could not get location'));
   } else {
     alert('Geolocation not supported');
   }
 }
 
-// Function to fetch current weather data and update UI
-async function fetchWeatherData(query) {
+// Function to fetch weather data
+async function fetchWeatherData(lat, lon) {
   try {
-    showLoading(true);
-    const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?${query}&appid=${API_KEY}&units=metric`);
-    if (!response.ok) throw new Error('Weather data not found');
-    const data = await response.json();
+    const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`;
+    const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`;
+    const airQualityUrl = `http://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY}`;
+  
+    const [weatherResponse, forecastResponse, airQualityResponse] = await Promise.all([
+      fetch(weatherUrl), fetch(forecastUrl), fetch(airQualityUrl)
+    ]);
+    
+    if (!weatherResponse.ok || !forecastResponse.ok || !airQualityResponse.ok) {
+      throw new Error('Error fetching data from one or more APIs');
+    }
 
-    // Update main weather display
-    document.getElementById('temperature').innerText = `${data.main.temp}°C`;
-    document.getElementById('description').innerText = data.weather[0].description;
-    document.getElementById('date').innerText = new Date().toLocaleDateString();
-    document.getElementById('location').innerText = data.name;
-
-    // Update today's highlights
-    document.getElementById('humidity').innerText = `Humidity: ${data.main.humidity}%`;
-    document.getElementById('pressure').innerText = `Pressure: ${data.main.pressure} hPa`;
-    document.getElementById('visibility').innerText = `Visibility: ${(data.visibility / 1000).toFixed(1)} km`;
-    document.getElementById('feelsLike').innerText = `Feels Like: ${data.main.feels_like}°C`;
-    document.getElementById('sunTimes').innerText = `Sunrise: ${new Date(data.sys.sunrise * 1000).toLocaleTimeString()} | Sunset: ${new Date(data.sys.sunset * 1000).toLocaleTimeString()}`;
+    const weatherData = await weatherResponse.json();
+    const forecastData = await forecastResponse.json();
+    const airQualityData = await airQualityResponse.json();
+  
+    updateCurrentWeather(weatherData);
+    updateHighlights(weatherData, airQualityData);
+    updateForecast(forecastData);
+    updateHourlyForecast(forecastData);
   } catch (error) {
-    alert(error.message);
-  } finally {
-    showLoading(false);
+    console.error("Error fetching weather data:", error);
+    alert('Error retrieving weather data. Please try again later.');
   }
 }
 
-// Function to fetch 5-day weather forecast
-async function getFiveDayForecast(lat, lon) {
-  try {
-    const response = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`);
-    if (!response.ok) throw new Error('Forecast data not found');
-    const data = await response.json();
-
-    const forecastItemsContainer = document.getElementById('forecastItems');
-    forecastItemsContainer.innerHTML = ''; 
-
-    data.list.forEach((item, index) => {
-      if (index % 8 === 0) {
-        const forecastItem = document.createElement('div');
-        forecastItem.className = 'forecast-item';
-        forecastItem.innerHTML = `
-          <p>${new Date(item.dt * 1000).toLocaleDateString()}</p>
-          <p>${item.main.temp}°C</p>
-          <p>${item.weather[0].description}</p>
-          <p>Rain: ${(item.pop * 100).toFixed(0)}%</p>
-        `;
-        forecastItemsContainer.appendChild(forecastItem);
-      }
-    });
-  } catch (error) {
-    alert(error.message);
-  }
+// Function to update current weather details
+function updateCurrentWeather(data) {
+  document.getElementById('temperature').innerText = `${data.main.temp}°C`;
+  document.getElementById('description').innerText = data.weather[0].description;
+  document.getElementById('date').innerText = new Date().toLocaleDateString();
+  document.getElementById('location').innerText = data.name;
 }
 
-// Function to fetch air quality data
-async function fetchAirQuality(lat, lon) {
-  try {
-    const response = await fetch(`https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY}`);
-    if (!response.ok) throw new Error('Air quality data not found');
-    const data = await response.json();
-    document.getElementById('airQuality').innerText = `Air Quality Index: ${data.list[0].main.aqi}`;
-  } catch (error) {
-    alert(error.message);
-  }
+// Function to update highlights
+function updateHighlights(weatherData, airQualityData) {
+  document.getElementById('humidity').innerText = `Humidity: ${weatherData.main.humidity}%`;
+  document.getElementById('pressure').innerText = `Pressure: ${weatherData.main.pressure} hPa`;
+  document.getElementById('visibility').innerText = `Visibility: ${(weatherData.visibility / 1000).toFixed(1)} km`;
+  document.getElementById('feelsLike').innerText = `Feels Like: ${weatherData.main.feels_like}°C`;
+
+  const sunrise = new Date(weatherData.sys.sunrise * 1000).toLocaleTimeString();
+  const sunset = new Date(weatherData.sys.sunset * 1000).toLocaleTimeString();
+  document.getElementById('sunTimes').innerText = `Sunrise: ${sunrise} | Sunset: ${sunset}`;
+
+  const airQualityIndex = airQualityData.list[0].main.aqi;
+  const airQualityText = ['Good', 'Fair', 'Moderate', 'Poor', 'Very Poor'];
+  document.getElementById('airQuality').innerText = `Air Quality: ${airQualityText[airQualityIndex - 1]}`;
 }
 
-// Function to show map with weather overlay
-function showMap(lat, lon) {
-  const map = document.getElementById('map');
-  map.innerHTML = `
-    <img src="https://tile.openweathermap.org/map/temp_new/10/${Math.floor(lat)}/${Math.floor(lon)}.png?appid=${API_KEY}" alt="Weather map overlay" width="100%" height="300px" />
-  `;
+// Function to update 5-day forecast
+function updateForecast(forecastData) {
+  const forecastItems = document.getElementById('forecastItems');
+  forecastItems.innerHTML = '';
+  forecastData.list.forEach((item, index) => {
+    if (index % 8 === 0) { // Show one forecast per day
+      const forecastItem = document.createElement('div');
+      forecastItem.className = 'forecast-item';
+      forecastItem.innerHTML = `<p>${new Date(item.dt * 1000).toLocaleDateString()}</p>
+                                <p>${item.main.temp}°C</p>
+                                <p>${item.weather[0].description}</p>`;
+      forecastItems.appendChild(forecastItem);
+    }
+  });
 }
 
-// Show loading indicator
-function showLoading(isLoading) {
-  const loadingElement = document.getElementById('loading');
-  loadingElement.style.display = isLoading ? 'block' : 'none';
+// Function to update hourly forecast with wind speed and direction
+function updateHourlyForecast(forecastData) {
+  const hourlyForecast = document.getElementById('hourlyForecast');
+  hourlyForecast.innerHTML = '';
+  forecastData.list.slice(0, 5).forEach((item) => { // Show first 5 items as hourly forecast
+    const windSpeed = item.wind.speed;
+    const windDirection = getWindDirection(item.wind.deg);
+    const forecastItem = document.createElement('div');
+    forecastItem.className = 'hourly-forecast-item';
+    forecastItem.innerHTML = `<p>${new Date(item.dt * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                              <p>${item.main.temp}°C</p>
+                              <p>${item.weather[0].description}</p>
+                              <p>Wind: ${windSpeed} m/s ${windDirection}</p>`;
+    hourlyForecast.appendChild(forecastItem);
+  });
 }
 
-// Add event listeners to search buttons
-document.getElementById('cityInput').addEventListener('keyup', function(event) {
-  if (event.key === 'Enter') {
-    getWeatherByCity();
-  }
-});
+// Function to convert wind direction from degrees to compass direction
+function getWindDirection(degrees) {
+  const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+  const index = Math.round(degrees / 45) % 8;
+  return directions[index];
+}
