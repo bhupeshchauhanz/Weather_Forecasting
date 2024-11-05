@@ -3,21 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bhupesh Weather</title>
+  <title>Weather Forecast</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather Forecast</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>Bhupesh Weather</h1>
+      <h1>Weather Forecast</h1>
       <div class="search-bar">
         <input type="text" id="cityInput" placeholder="Search city...">
         <button onclick="getWeatherByCity()">Search</button>
         <button onclick="getWeatherByLocation()">Current Location</button>
       </div>
     </header>
-
-    <div id="loading" style="display: none;">Loading...</div>
 
     <main>
       <!-- Current Weather Section -->
@@ -31,7 +43,7 @@
       <!-- Today's Highlights Section -->
       <section class="highlights">
         <h2>Today's Highlights</h2>
-        <div class="highlight" id="airQuality">Air Quality Index: --</div>
+        <div class="highlight" id="airQuality">Air Quality: --</div>
         <div class="highlight" id="sunTimes">Sunrise: -- | Sunset: --</div>
         <div class="highlight" id="humidity">Humidity: --%</div>
         <div class="highlight" id="pressure">Pressure: -- hPa</div>
@@ -39,16 +51,20 @@
         <div class="highlight" id="feelsLike">Feels Like: --°C</div>
       </section>
 
-      <!-- 5-Day Forecast Section -->
+      <!-- 5 Days Forecast Section -->
       <section class="forecast">
-        <h2>5-Day Forecast</h2>
-        <div class="forecast-items" id="forecastItems"></div>
+        <h2>5 Days Forecast</h2>
+        <div class="forecast-items" id="forecastItems">
+          <!-- Forecast items will be dynamically added here -->
+        </div>
       </section>
 
-      <!-- Map Section -->
-      <section class="map">
-        <h2>Weather Map</h2>
-        <div id="map"></div>
+      <!-- Today at Section -->
+      <section class="today-at">
+        <h2>Today at</h2>
+        <div class="hourly-forecast" id="hourlyForecast">
+          <!-- Hourly forecast items with merged wind speed and direction will be added here -->
+        </div>
       </section>
     </main>
   </div>
