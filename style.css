@@ -73,13 +73,13 @@ main {
   margin: 5px 0;
 }
 
-.highlights {
+.highlights, .forecast, .today-at {
   background-color: #2e2e2e;
   padding: 20px;
   border-radius: 10px;
 }
 
-.highlights h2 {
+.highlights h2, .forecast h2, .today-at h2 {
   margin-bottom: 15px;
 }
 
@@ -90,23 +90,13 @@ main {
   border-bottom: 1px solid #444;
 }
 
-.forecast {
-  background-color: #2e2e2e;
-  padding: 20px;
-  border-radius: 10px;
-}
-
-.forecast h2 {
-  margin-bottom: 15px;
-}
-
-.forecast-items {
+.forecast-items, .hourly-forecast {
   display: flex;
   gap: 10px;
   overflow-x: scroll;
 }
 
-.forecast-item {
+.forecast-item, .hourly-forecast-item {
   min-width: 100px;
   background-color: #3e3e3e;
   padding: 10px;
@@ -114,27 +104,6 @@ main {
   text-align: center;
 }
 
-.forecast-item p {
+.forecast-item p, .hourly-forecast-item p {
   font-size: 0.9rem;
-}
-
-#map img {
-  width: 100%;
-  height: 300px;
-  border-radius: 10px;
-}
-
-#loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  color: #fff;
-  font-size: 1.5rem;
-  z-index: 1000;
 }
